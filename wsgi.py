@@ -11,14 +11,14 @@ app = Flask(__name__)
 
 CORS(app)
 
-with open('./model/lgbm_model.pkl', 'rb') as file:
+with open('./model/multi-water-quality.pkl', 'rb') as file:
     model = joblib.load(file)
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json  # Get the JSON data from the request
-
+    print(data)
     # Extract the features from the JSON data
     features = np.array(list(data.values())).reshape(1, -1)
 
@@ -26,10 +26,11 @@ def predict():
     prediction = model.predict(features)
 
     # Convert the prediction to a human-readable format
-    if prediction == 1:
-        result = 'Safe'
+    print('prediction: ', prediction[0][0])
+    if prediction[0][0] > 2.8 or prediction[0][1] > 0.005:
+        result = "Not Good"
     else:
-        result = 'Unsafe'
+        result = "Good"
 
     # Return the prediction as a JSON response
     return jsonify({'prediction': result})
